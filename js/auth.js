@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
         registerForm = document.getElementById('register-form');
         loginBtn = document.getElementById('login-btn');
         registerBtn = document.getElementById('register-btn');
-                loginEmail = document.getElementById('login-email');
+        loginEmail = document.getElementById('login-email');
         loginPassword = document.getElementById('login-password');
         registerEmail = document.getElementById('register-email');
         registerPassword = document.getElementById('register-password');
@@ -28,8 +28,16 @@ document.addEventListener('DOMContentLoaded', () => {
         logoutBtn = document.getElementById('logout-btn');
         
         // Initialize auth functionality once elements are available
-        // Function to initialize auth-related functionality
+        initializeAuth();
+    }
+});
+
+// Function to initialize auth-related functionality
 function initializeAuth() {
+    // Prevent multiple initialization
+    if (window.authInitialized) return;
+    window.authInitialized = true;
+    
     // Get firebase services
     const firebaseAuth = window.firebaseServices.auth;
     const firestoreDb = window.firebaseServices.db;
