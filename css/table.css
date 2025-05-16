@@ -50,6 +50,35 @@ table tr:hover {
 }
 
 #product-table img:hover {
+    transform: scale(1.5);
+    z-index: 100;
+}
+
+/* Dashboard tables */
+.recent-data .table-container {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Responsive tables */
+@media screen and (max-width: 768px) {
+    table {
+        font-size: 0.8rem;
+    }
+    
+    table th, 
+    table td {
+        padding: 0.6rem;
+    }
+    
+    .action-btn {
+        padding: 5px 8px;
+        font-size: 0.75rem;
+        margin-right: 3px;
+    }
+}
+
+#product-table img:hover {
     transform: scale(3);
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     z-index: 100;
