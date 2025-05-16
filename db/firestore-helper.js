@@ -10,14 +10,15 @@ if (!window.firebaseServices) {
   console.error('Firebase services are not initialized. Please make sure firebase-config.js is loaded first.');
 }
 
-// Firebase database helper class
-class FirestoreHelper {
-  /**
-   * Initialize the FirestoreHelper with Firestore database
-   */
-  constructor() {
-    this.db = window.firebaseServices.db;
-  }
+// Firebase database helper class - only define if not already defined
+if (!window.FirestoreHelper) {
+  class FirestoreHelper {
+    /**
+     * Initialize the FirestoreHelper with Firestore database
+     */
+    constructor() {
+      this.db = window.firebaseServices.db;
+    }
 
   /**
    * Get all documents from a collection
@@ -163,5 +164,6 @@ class FirestoreHelper {
   }
 }
 
-// Export the helper class
-window.firestoreHelper = new FirestoreHelper();
+// Export the helper class only if not already defined
+window.firestoreHelper = window.firestoreHelper || new FirestoreHelper();
+}

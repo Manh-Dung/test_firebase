@@ -1,11 +1,12 @@
 // Firebase database utilities
-class FirebaseDB {
-    constructor() {
-        this.db = window.firebaseServices.db;
-        
-        // Set up Firestore persistence to work offline
-        this.setupPersistence();
-    }
+if (!window.FirebaseDB) {
+    class FirebaseDB {
+        constructor() {
+            this.db = window.firebaseServices.db;
+            
+            // Set up Firestore persistence to work offline
+            this.setupPersistence();
+        }
     
     /**
      * Setup Firestore persistence for offline capabilities
@@ -77,11 +78,12 @@ class FirebaseDB {
      * @param {string} collectionName - The collection name
      * @param {string} documentId - The document ID
      * @returns {Promise} Promise with the delete result
-     */
+         */
     deleteDocument(collectionName, documentId) {
         return this.db.collection(collectionName).doc(documentId).delete();
     }
 }
 
-// Export the class
-window.FirebaseDB = FirebaseDB;
+// Export the class - only if not already defined
+window.FirebaseDB = window.FirebaseDB || FirebaseDB;
+}

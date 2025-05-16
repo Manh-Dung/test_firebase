@@ -1,5 +1,9 @@
 // DOM Elements - Product related
-const productTableBody = document.getElementById('product-table-body');
+const productTableBody = document.getElementById('product-table-body') || document.querySelector('#product-table tbody');
+const productsTable = document.getElementById('products-table');
+const productSearch = document.getElementById('product-search');
+const addProductBtn = document.getElementById('add-product-btn');
+const saveProductBtn = document.getElementById('save-product-btn');
 
 // Get firebase services without redeclaring
 const firestoreDB = window.firebaseServices.db;

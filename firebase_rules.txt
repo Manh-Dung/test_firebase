@@ -1,0 +1,53 @@
+// Firestore rules
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Admin collection
+    match /admin/{adminId} {
+      // Allow read if the user ID matches the document ID (admin can read their own profile)
+      allow read: if request.auth != null && request.auth.uid == adminId;
+      // Only allow writes from authenticated users who are verified admins
+      allow write: if request.auth != null && (
+        // For the first admin creation, allow if admin collection is empty
+        (adminId == request.auth.uid && getAfter(/databases/$(database)/documents/admin/$(request.auth.uid)).data.email == request.auth.token.email) ||
+        // For existing admins, check if the user is in the admin collection
+        exists(/databases/$(database)/documents/admin/$(request.auth.uid))
+      );
+    }
+    
+    // Products collection
+    match /product/{productId} {
+      // Allow reading products for all authenticated users
+      allow read: if request.auth != null;
+      // Only allow writes from authenticated admin users
+      allow write: if request.auth != null && exists(/databases/$(database)/documents/admin/$(request.auth.uid));
+    }
+    
+    // Orders collection
+    match /order/{orderId} {
+      // Allow admin to read all orders
+      allow read: if request.auth != null && exists(/databases/$(database)/documents/admin/$(request.auth.uid));
+      // Allow users to create and read their own orders
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      // Only allow admins to update or delete orders
+      allow update, delete: if request.auth != null && exists(/databases/$(database)/documents/admin/$(request.auth.uid));
+    }
+    
+    // Users collection
+    match /user/{userId} {
+      // Allow users to read and write their own data
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      // Allow admins to read all user data
+      allow read: if request.auth != null && exists(/databases/$(database)/documents/admin/$(request.auth.uid));
+    }
+    
+    // Items collection (personal items for users)
+    match /items/{itemId} {
+      // Allow users to read, write their own items
+      allow read, write: if request.auth != null && resource.data.userId == request.auth.uid;
+      // Allow admins to read all items
+      allow read: if request.auth != null && exists(/databases/$(database)/documents/admin/$(request.auth.uid));
+    }
+  }
+}

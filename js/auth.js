@@ -1,30 +1,41 @@
 // DOM Elements - Auth related
-const authContainer = document.getElementById('auth-container');
-const dashboardContainer = document.getElementById('dashboard-container');
-const adminEmail = document.getElementById('admin-email');
+let authContainer, dashboardContainer, adminEmail;
+let loginTab, registerTab, loginForm, registerForm, loginBtn, registerBtn, loginEmail, loginPassword;
+let registerEmail, registerPassword, registerConfirm, loginError, registerError, logoutBtn;
 
-// Login form elements
-const loginTab = document.getElementById('login-tab');
-const registerTab = document.getElementById('register-tab');
-const loginForm = document.getElementById('login-form');
-const registerForm = document.getElementById('register-form');
-const loginBtn = document.getElementById('login-btn');
-const registerBtn = document.getElementById('register-btn');
-const loginEmail = document.getElementById('login-email');
-const loginPassword = document.getElementById('login-password');
-const registerEmail = document.getElementById('register-email');
-const registerPassword = document.getElementById('register-password');
-const registerConfirm = document.getElementById('register-confirm');
-const loginError = document.getElementById('login-error');
-const registerError = document.getElementById('register-error');
-const logoutBtn = document.getElementById('logout-btn');
+// Initialize DOM elements only if they don't exist and are in the DOM
+document.addEventListener('DOMContentLoaded', () => {
+    // Only initialize if elements exist in DOM
+    if (document.getElementById('auth-container')) {
+        authContainer = document.getElementById('auth-container');
+        dashboardContainer = document.getElementById('dashboard-container');
+        adminEmail = document.getElementById('admin-email');
 
-// Get firebase services without redeclaring
-const firebaseAuth = window.firebaseServices.auth;
-const firestoreDb = window.firebaseServices.db;
-
-// Toggle between login and register tabs
-loginTab.addEventListener('click', () => {
+        // Login form elements
+        loginTab = document.getElementById('login-tab');
+        registerTab = document.getElementById('register-tab');
+        loginForm = document.getElementById('login-form');
+        registerForm = document.getElementById('register-form');
+        loginBtn = document.getElementById('login-btn');
+        registerBtn = document.getElementById('register-btn');
+                loginEmail = document.getElementById('login-email');
+        loginPassword = document.getElementById('login-password');
+        registerEmail = document.getElementById('register-email');
+        registerPassword = document.getElementById('register-password');
+        registerConfirm = document.getElementById('register-confirm');
+        loginError = document.getElementById('login-error');
+        registerError = document.getElementById('register-error');
+        logoutBtn = document.getElementById('logout-btn');
+        
+        // Initialize auth functionality once elements are available
+        // Function to initialize auth-related functionality
+function initializeAuth() {
+    // Get firebase services
+    const firebaseAuth = window.firebaseServices.auth;
+    const firestoreDb = window.firebaseServices.db;
+    
+    // Toggle between login and register tabs
+    loginTab.addEventListener('click', () => {
     loginTab.classList.add('active');
     registerTab.classList.remove('active');
     loginForm.classList.add('active');
@@ -263,4 +274,7 @@ function loadDashboardData() {
     }).catch(error => {
         console.error('Error loading users:', error);
     });
+}
+
+// End of initializeAuth function
 }
