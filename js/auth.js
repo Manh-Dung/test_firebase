@@ -159,6 +159,15 @@ registerBtn.addEventListener('click', async () => {
         await firestoreDb.collection('admin').doc(user.uid).set({
             email: email,
             createdAt: new Date(),
+            role: 'admin'
+        });
+        
+        // Also add user to users collection for user management
+        await firestoreDb.collection('users').doc(user.uid).set({
+            email: email,
+            displayName: email.split('@')[0], // Use part of email as display name
+            createdAt: window.firebaseServices.firebase.firestore.FieldValue.serverTimestamp(),
+            isAdmin: true
         });
         
         // Clear inputs

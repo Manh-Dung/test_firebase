@@ -10,7 +10,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "firebase": "^10.5.0"
+    "firebase": "^10.5.0",
+    "firebase-admin": "^13.4.0"
   },
   "devDependencies": {
     "http-server": "^14.1.1"

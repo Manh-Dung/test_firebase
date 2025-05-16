@@ -1,0 +1,94 @@
+/* User Management Styles */
+.user-status {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.8em;
+    font-weight: 600;
+    text-align: center;
+    margin-right: 5px;
+}
+
+.user-status.admin {
+    background-color: #4285F4;
+    color: white;
+}
+
+.user-status.customer {
+    background-color: #34A853;
+    color: white;
+}
+
+.admin-btn {
+    background-color: #f1f1f1;
+    transition: all 0.3s ease;
+}
+
+.admin-btn.active {
+    background-color: #4285F4;
+    color: white;
+}
+
+.admin-btn.active i {
+    color: white;
+}
+
+/* Enhanced action buttons */
+.action-btn {
+    width: 32px;
+    height: 32px;
+    margin: 0 3px;
+    border-radius: 4px;
+    background-color: #f1f1f1;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+    background-color: #e1e1e1;
+}
+
+.action-btn i {
+    color: #555;
+    font-size: 14px;
+}
+
+.view-btn:hover {
+    background-color: #e8f0fe;
+}
+
+.edit-btn:hover {
+    background-color: #e6f4ea;
+}
+
+.delete-btn:hover {
+    background-color: #fce8e6;
+}
+
+/* User detail modal */
+.user-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.user-details .detail-group {
+    margin-bottom: 15px;
+}
+
+.user-details .detail-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+.user-details .detail-group span {
+    display: block;
+    padding: 8px 0;
+}

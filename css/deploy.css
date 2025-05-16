@@ -1,0 +1,71 @@
+/* Deploy functionality */
+.deploy-container {
+    margin: 20px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.deploy-container h2 {
+    margin-top: 0;
+    color: #4285F4;
+}
+
+.deploy-container p {
+    margin-bottom: 20px;
+    color: #555;
+}
+
+.deploy-btn {
+    background-color: #4285F4;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.deploy-btn:hover {
+    background-color: #3367d6;
+}
+
+.deploy-btn i {
+    margin-right: 8px;
+}
+
+.deploy-status {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 4px;
+    display: none;
+}
+
+.deploy-status.success {
+    background-color: #e6f4ea;
+    color: #34A853;
+    display: block;
+}
+
+.deploy-status.error {
+    background-color: #fce8e6;
+    color: #EA4335;
+    display: block;
+}
+
+.deploy-log {
+    background-color: #f1f3f4;
+    border-radius: 4px;
+    padding: 15px;
+    font-family: monospace;
+    white-space: pre-wrap;
+    overflow-x: auto;
+    margin-top: 15px;
+    max-height: 300px;
+    overflow-y: auto;
+    display: none;
+}

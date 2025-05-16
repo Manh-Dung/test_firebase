@@ -5,41 +5,42 @@ const menuItems = document.querySelectorAll('.sidebar-menu li');
 const contentPages = document.querySelectorAll('.content-page');
 
 // Toggle sidebar on mobile
-menuToggle.addEventListener('click', () => {
-    sidebar.classList.toggle('active');
-});
-
-// Navigation between pages
-menuItems.forEach(item => {
-    item.addEventListener('click', () => {
-        // Remove active class from all menu items
-        menuItems.forEach(menuItem => {
-            menuItem.classList.remove('active');
-        });
-        
-        // Add active class to clicked menu item
-        item.classList.add('active');
-        
-        // Get page to show
-        const pageId = item.getAttribute('data-page');
-        
-        // Hide all pages
-        contentPages.forEach(page => {
-            page.classList.remove('active');
-        });
-        
-        // Show selected page
-        const selectedPage = document.getElementById(`${pageId}-page`);
-        if (selectedPage) {
-            selectedPage.classList.add('active');
-        }
-        
-        // Close sidebar on mobile
-        if (window.innerWidth <= 768) {
-            sidebar.classList.remove('active');
-        }
+if (menuToggle) {
+    menuToggle.addEventListener('click', () => {
+        sidebar.classList.toggle('active');
     });
-});
+}
+
+// We'll let app.js handle the page navigation to centralize the data loading
+// The event listeners in app.js will handle page switching now
+
+// Auto-load products when switching to Products page
+const productsMenuItem = document.querySelector('li[data-page="products"]');
+if (productsMenuItem) {
+    productsMenuItem.addEventListener('click', () => {
+        // Use a short timeout to ensure DOM updates are complete
+        setTimeout(() => {
+            if (window.isPageVisible && window.isPageVisible('products') && 
+                window.dataLoader && typeof window.dataLoader.loadProducts === 'function') {
+                window.dataLoader.loadProducts();
+            }
+        }, 100);
+    });
+}
+
+// Add event listener for Orders page
+const ordersMenuItem = document.querySelector('li[data-page="orders"]');
+if (ordersMenuItem) {
+    ordersMenuItem.addEventListener('click', () => {
+        // Use a short timeout to ensure DOM updates are complete
+        setTimeout(() => {
+            if (window.isPageVisible && window.isPageVisible('orders') && 
+                typeof loadOrders === 'function') {
+                loadOrders();
+            }
+        }, 100);
+    });
+}
 
 // Modal handling
 const modals = document.querySelectorAll('.modal');

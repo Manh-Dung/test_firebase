@@ -13,8 +13,10 @@
     <link rel="stylesheet" href="css/items.css">
     <link rel="stylesheet" href="css/orders.css">
     <link rel="stylesheet" href="css/products.css">
+    <link rel="stylesheet" href="css/users.css">
     <link rel="stylesheet" href="css/navbar.css">
     <link rel="stylesheet" href="css/modal.css">
+    <link rel="stylesheet" href="css/deploy.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -166,6 +168,16 @@
                                 </tbody>
                             </table>
                         </div>
+                    </div>
+                    
+                    <div class="deploy-container">
+                        <h2>Deploy to Firebase</h2>
+                        <p>Deploy your current changes to Firebase Hosting for live access.</p>
+                        <button id="deploy-btn" class="deploy-btn">
+                            <i class="fas fa-rocket"></i> Deploy to Firebase
+                        </button>
+                        <div id="deploy-status" class="deploy-status"></div>
+                        <div id="deploy-log" class="deploy-log"></div>
                     </div>
                 </div>
                 
@@ -370,6 +382,8 @@
     <script src="js/navbar.js"></script>
     <script src="js/products.js"></script>
     <script src="js/orders.js"></script>
+    <script src="js/users.js"></script>
+    <script src="js/deploy.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

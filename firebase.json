@@ -3,5 +3,24 @@
     "database": "(default)",
     "rules": "firestore.rules",
     "indexes": "firestore.indexes.json"
+  },
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      "**/*.sh",
+      "README.md",
+      "firestore.rules",
+      "firestore.indexes.json",
+      "firebase_rules.txt"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
   }
 }

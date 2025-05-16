@@ -1,20 +1,31 @@
 // DOM Elements - Orders
-const ordersTable = document.getElementById('orders-table');
 const orderSearch = document.getElementById('order-search');
 const statusFilter = document.getElementById('status-filter');
-const orderDetails = document.getElementById('order-details');
-const orderStatus = document.getElementById('order-status');
 const updateOrderBtn = document.getElementById('update-order-btn');
 
 // Get firebase services
 const ordersDb = window.firebaseServices.db;
-const firebase = window.firebaseServices.firebase;
+// Sử dụng biến toàn cục thay vì khai báo const để tránh xung đột
+firebaseInstance = window.firebaseServices.firebase;
 
 // Current order being viewed
 let currentOrderId = null;
 
 // Load all orders
 function loadOrders(filter = '', status = '') {
+    // Check if we're on the orders page first
+    if (window.isPageVisible && !window.isPageVisible('orders')) {
+        console.log('Không load đơn hàng vì đang không ở trang Orders.');
+        return;
+    }
+
+    // Thay đổi ID này từ order-table-body thành orders-table để phù hợp với HTML
+    const ordersTable = document.getElementById('orders-table');
+    if (!ordersTable) {
+        console.error('Không tìm thấy phần tử bảng đơn hàng');
+        return;
+    }
+    
     // Show loading state
     ordersTable.innerHTML = `
         <tr>
@@ -131,173 +142,271 @@ function loadOrders(filter = '', status = '') {
     });
 }
 
-// View order details
+// Expose viewOrderDetails to window
+window.viewOrderDetails = viewOrderDetails;
+
+// Cải thiện hiển thị thông tin đơn hàng
 function viewOrderDetails(orderId) {
     // Store current order ID
     currentOrderId = orderId;
     
+    // Get the order details container
+    const orderDetails = document.getElementById('order-details');
+    if (!orderDetails) {
+        console.error('Không tìm thấy phần tử hiển thị chi tiết đơn hàng');
+        return;
+    }
+    
     // Show loading state
     orderDetails.innerHTML = `
         <div style="text-align: center; padding: 20px;">
-            <div style="display: inline-block; width: 20px; height: 20px; border: 2px solid #4285F4; border-radius: 50%; border-top-color: transparent; animation: spin 1s linear infinite;"></div>
-            Loading order details...
+            <div style="display: inline-block; width: 30px; height: 30px; border: 3px solid #4285F4; border-radius: 50%; border-top-color: transparent; animation: spin 1s linear infinite;"></div>
+            <p>Đang tải thông tin đơn hàng...</p>
         </div>
     `;
     
-    // Open modal
-    window.openModal('order-modal');
+    // Open the order modal
+    const orderModal = document.getElementById('order-modal');
+    if (orderModal) {
+        orderModal.style.display = 'flex';
+    }
     
-    // Get order data
-    ordersDb.collection('order').doc(orderId).get().then(doc => {
-        if (!doc.exists) {
-            orderDetails.innerHTML = `<p>Order not found</p>`;
-            return;
-        }
-        
-        const order = doc.data();
-        
-        // Calculate order total
-        let orderTotal = 0;
-        if (order.products && order.products.length > 0) {
-            orderTotal = order.products.reduce((sum, product) => sum + (product.totalPrice || 0), 0);
-        }
-        
-        // Set current status in dropdown
-        if (order.orderStatus) {
-            orderStatus.value = order.orderStatus;
-        }
-        
-        // Format address
-        let addressHTML = '';
-        if (order.address) {
-            addressHTML = `
-                <div class="info-item">
-                    <div class="info-label">Address</div>
-                    <div class="info-value">
-                        ${order.address.street ? order.address.street + '<br>' : ''}
-                        ${order.address.city ? order.address.city + ', ' : ''}
-                        ${order.address.state ? order.address.state : ''}
-                    </div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Phone</div>
-                    <div class="info-value">${order.address.phone || 'N/A'}</div>
-                </div>
-            `;
-        }
-        
-        // Build products HTML
-        let productsHTML = '';
-        if (order.products && order.products.length > 0) {
-            order.products.forEach(item => {
-                const product = item.product || {};
+    // Fetch order details
+    ordersDb.collection('order').doc(orderId).get()
+        .then(doc => {
+            if (!doc.exists) {
+                orderDetails.innerHTML = `<p class="error-message">Không tìm thấy thông tin đơn hàng</p>`;
+                return;
+            }
+            
+            const order = doc.data();
+            order.id = doc.id;
+            
+            // Calculate order total
+            let orderTotal = 0;
+            if (order.products && order.products.length > 0) {
+                orderTotal = order.products.reduce((sum, product) => sum + (product.totalPrice || 0), 0);
+            }
+            
+            // Set current status in dropdown
+            const statusSelect = document.getElementById('order-status');
+            if (statusSelect && order.orderStatus) {
+                for (let i = 0; i < statusSelect.options.length; i++) {
+                    if (statusSelect.options[i].value === order.orderStatus) {
+                        statusSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+            
+            // Format products list
+            let productsHTML = '';
+            if (order.products && order.products.length > 0) {
+                productsHTML = `
+                    <div class="order-products">
+                        <h3>Sản phẩm (${order.products.length})</h3>
+                        <table class="order-products-table">
+                            <thead>
+                                <tr>
+                                    <th>Sản phẩm</th>
+                                    <th>Số lượng</th>
+                                    <th>Đơn giá</th>
+                                    <th>Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+                
+                order.products.forEach(product => {
+                    productsHTML += `
+                        <tr>
+                            <td>
+                                <div class="product-info">
+                                    ${product.imageUrl ? `<img src="${product.imageUrl}" alt="${product.name}" width="40" height="40">` : ''}
+                                    <span>${product.name || 'Sản phẩm'}</span>
+                                </div>
+                            </td>
+                            <td>${product.quantity || 1}</td>
+                            <td>${(product.price || 0).toLocaleString('vi-VN')} ₫</td>
+                            <td>${(product.totalPrice || 0).toLocaleString('vi-VN')} ₫</td>
+                        </tr>
+                    `;
+                });
                 
                 productsHTML += `
-                    <div class="product-item">
-                        <img src="${product.images && product.images.length > 0 ? product.images[0] : 'https://via.placeholder.com/60'}" 
-                            alt="${product.name || 'Product'}" class="product-image">
-                        <div class="product-details">
-                            <div class="product-name">${product.name || 'Unknown Product'}</div>
-                            <div class="product-meta">
-                                <span>Quantity: ${item.quantity || 1}</span>
-                                ${item.selectedSize ? `<span>Size: ${item.selectedSize}</span>` : ''}
-                                ${item.selectedColor ? `<span>Color: <span style="display: inline-block; width: 12px; height: 12px; background-color: #${Math.abs(item.selectedColor).toString(16).padStart(6, '0')}; border: 1px solid #ddd; margin-right: 5px;"></span></span>` : ''}
-                            </div>
-                        </div>
-                        <div class="product-price">${(item.totalPrice || 0).toLocaleString('vi-VN')} ₫</div>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="3" class="total-label">Tổng cộng:</td>
+                                    <td class="total-value">${orderTotal.toLocaleString('vi-VN')} ₫</td>
+                                </tr>
+                            </tfoot>
+                        </table>
                     </div>
                 `;
-            });
-        } else {
-            productsHTML = '<p>No products in this order</p>';
-        }
-        
-        // Build detail HTML
-        orderDetails.innerHTML = `
-            <div class="order-info">
-                <h3>Order Information</h3>
-                <div class="info-grid">
-                    <div class="info-item">
-                        <div class="info-label">Order ID</div>
-                        <div class="info-value">${order.orderId || 'N/A'}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Date</div>
-                        <div class="info-value">${order.date || 'N/A'}</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Status</div>
-                        <div class="info-value">
-                            <span class="status-badge status-${order.orderStatus?.toLowerCase() || 'pending'}">
-                                ${order.orderStatus || 'Pending'}
-                            </span>
-                        </div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Customer ID</div>
-                        <div class="info-value">${order.userId || 'N/A'}</div>
-                    </div>
-                    ${addressHTML}
-                </div>
-            </div>
+            } else {
+                productsHTML = '<p>Không có thông tin sản phẩm</p>';
+            }
             
-            <div class="order-products">
-                <h3>Order Items</h3>
-                ${productsHTML}
-                <div class="order-total">
-                    <h4>Total: ${orderTotal.toLocaleString('vi-VN')} ₫</h4>
+            // Render order details
+            orderDetails.innerHTML = `
+                <div class="order-header">
+                    <div class="order-id">
+                        <span class="label">Mã đơn hàng:</span>
+                        <span class="value">#${order.orderId || 'N/A'}</span>
+                    </div>
+                    <div class="order-date">
+                        <span class="label">Ngày đặt:</span>
+                        <span class="value">${order.date || 'N/A'}</span>
+                    </div>
+                    <div class="order-status">
+                        <span class="label">Trạng thái:</span>
+                        <span class="value status-badge status-${order.orderStatus?.toLowerCase() || 'pending'}">${order.orderStatus || 'Pending'}</span>
+                    </div>
                 </div>
-            </div>
-        `;
-    }).catch(error => {
-        console.error('Error loading order details:', error);
-        orderDetails.innerHTML = `
-            <div style="color: #ea4335; padding: 20px;">
-                Error loading order details: ${error.message}
-            </div>
-        `;
-    });
+                
+                <div class="order-info">
+                    <div class="customer-info">
+                        <h3>Thông tin khách hàng</h3>
+                        <p><strong>Người dùng:</strong> ${order.userId || 'N/A'}</p>
+                        <p><strong>Tên:</strong> ${order.shippingAddress?.name || 'N/A'}</p>
+                        <p><strong>Số điện thoại:</strong> ${order.shippingAddress?.phone || 'N/A'}</p>
+                    </div>
+                    
+                    <div class="shipping-info">
+                        <h3>Thông tin giao hàng</h3>
+                        <p><strong>Địa chỉ:</strong> ${formatAddress(order.shippingAddress)}</p>
+                        <p><strong>Ghi chú:</strong> ${order.note || 'Không có'}</p>
+                    </div>
+                </div>
+                
+                ${productsHTML}
+            `;
+            
+        })
+        .catch(error => {
+            console.error('Error loading order details:', error);
+            orderDetails.innerHTML = `
+                <p class="error-message">Lỗi khi tải thông tin đơn hàng: ${error.message}</p>
+            `;
+        });
 }
 
-// Update order status
-updateOrderBtn.addEventListener('click', () => {
-    if (!currentOrderId) return;
+// Helper function to format address
+function formatAddress(address) {
+    if (!address) return 'N/A';
     
-    const newStatus = orderStatus.value;
+    const parts = [
+        address.address,
+        address.ward,
+        address.district,
+        address.city
+    ].filter(Boolean);
     
-    // Show loading
-    updateOrderBtn.disabled = true;
-    updateOrderBtn.innerHTML = `
-        <span style="display: inline-block; width: 14px; height: 14px; border: 2px solid #fff; border-radius: 50%; border-top-color: transparent; animation: spin 1s linear infinite;"></span>
-        Updating...
-    `;
+    return parts.join(', ') || 'N/A';
+}
+
+// Cập nhật trạng thái đơn hàng
+async function updateOrderStatus() {
+    // Kiểm tra xem có đơn hàng nào đang được xem không
+    if (!currentOrderId) {
+        console.error('Không có đơn hàng nào được chọn.');
+        return;
+    }
     
-    // Update in Firestore
-    ordersDb.collection('order').doc(currentOrderId).update({
-        orderStatus: newStatus,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(() => {
-        // Close modal
-        closeAllModals();
+    // Lấy trạng thái mới từ dropdown
+    const statusSelect = document.getElementById('order-status');
+    if (!statusSelect) {
+        console.error('Không tìm thấy phần tử chọn trạng thái.');
+        return;
+    }
+    
+    const newStatus = statusSelect.value;
+    
+    // Hiển thị trạng thái đang cập nhật
+    const updateBtn = document.getElementById('update-order-btn');
+    if (updateBtn) {
+        updateBtn.disabled = true;
+        updateBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang cập nhật...';
+    }
+    
+    try {
+        // Cập nhật trạng thái đơn hàng trong Firestore
+        await ordersDb.collection('order').doc(currentOrderId).update({
+            orderStatus: newStatus,
+            updatedAt: firebaseInstance.firestore.FieldValue.serverTimestamp()
+        });
         
-        // Reload orders
-        loadOrders(orderSearch.value, statusFilter.value);
+        console.log('Đã cập nhật trạng thái đơn hàng thành công:', newStatus);
         
-        // Update dashboard too
-        if (typeof loadDashboardData === 'function') {
-            loadDashboardData();
+        // Đóng modal
+        const orderModal = document.getElementById('order-modal');
+        if (orderModal) {
+            orderModal.style.display = 'none';
         }
         
-        console.log('Order status updated successfully');
-    }).catch(error => {
-        console.error('Error updating order status:', error);
-        alert(`Error updating order status: ${error.message}`);
-    }).finally(() => {
-        // Reset button
-        updateOrderBtn.disabled = false;
-        updateOrderBtn.textContent = 'Update Status';
+        // Tải lại danh sách đơn hàng
+        loadOrders();
+        
+    } catch (error) {
+        console.error('Lỗi khi cập nhật trạng thái đơn hàng:', error);
+        alert('Lỗi khi cập nhật trạng thái đơn hàng: ' + error.message);
+    } finally {
+        // Khôi phục trạng thái nút
+        if (updateBtn) {
+            updateBtn.disabled = false;
+            updateBtn.innerHTML = 'Update Status';
+        }
+    }
+}
+
+// Khởi tạo sự kiện modal đơn hàng
+function initOrderModal() {
+    // Sự kiện cập nhật trạng thái đơn hàng
+    const updateOrderBtn = document.getElementById('update-order-btn');
+    if (updateOrderBtn) {
+        updateOrderBtn.addEventListener('click', updateOrderStatus);
+    }
+    
+    // Đóng modal khi click nút Close
+    const closeButtons = document.querySelectorAll('.close-modal');
+    closeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const orderModal = document.getElementById('order-modal');
+            if (orderModal) {
+                orderModal.style.display = 'none';
+            }
+        });
     });
-});
+    
+    // Đóng modal khi click ra ngoài
+    const orderModal = document.getElementById('order-modal');
+    if (orderModal) {
+        orderModal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                orderModal.style.display = 'none';
+            }
+        });
+    }
+    
+    // Sự kiện lọc đơn hàng theo trạng thái
+    const statusFilter = document.getElementById('status-filter');
+    if (statusFilter) {
+        statusFilter.addEventListener('change', function() {
+            const searchFilter = document.getElementById('order-search')?.value || '';
+            loadOrders(searchFilter, this.value);
+        });
+    }
+    
+    // Sự kiện tìm kiếm đơn hàng
+    const orderSearch = document.getElementById('order-search');
+    if (orderSearch) {
+        orderSearch.addEventListener('input', function() {
+            const statusValue = document.getElementById('status-filter')?.value || '';
+            loadOrders(this.value, statusValue);
+        });
+    }
+}
 
 // Search and filter
 orderSearch.addEventListener('input', () => {
@@ -308,7 +417,15 @@ statusFilter.addEventListener('change', () => {
     loadOrders(orderSearch.value, statusFilter.value);
 });
 
-// Initial load
-document.addEventListener('DOMContentLoaded', () => {
+// Khởi tạo sự kiện và tải dữ liệu khi trang được tải
+document.addEventListener('DOMContentLoaded', function() {
+    // Khởi tạo sự kiện cho order modal
+    initOrderModal();
+    
+    // Export functions
+    window.dataLoader = window.dataLoader || {};
+    window.dataLoader.loadOrders = loadOrders;
+    
+    // Tải dữ liệu đơn hàng ban đầu
     loadOrders();
 });
