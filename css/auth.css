@@ -1,0 +1,12 @@
+/* Authentication styles */
+.auth-section {
+    margin-top: 1rem;
+}
+
+#logout-btn {
+    background-color: #DB4437;
+}
+
+#logout-btn:hover {
+    background-color: #C53929;
+}

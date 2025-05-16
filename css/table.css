@@ -1,0 +1,65 @@
+/* Table styles */
+.table-container {
+    overflow-x: auto;
+    margin-top: 1rem;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+table th, 
+table td {
+    padding: 0.8rem;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+    vertical-align: top;
+}
+
+table th {
+    background-color: #f9f9f9;
+    font-weight: bold;
+    color: #4285F4;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+table tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* Product table specific styles */
+#product-table td:nth-child(9) {  /* Description column */
+    max-width: 300px;
+    white-space: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+}
+
+#product-table img {
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+}
+
+#product-table img:hover {
+    transform: scale(3);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    z-index: 100;
+    position: relative;
+}
+
+/* For responsive tables on small screens */
+@media screen and (max-width: 600px) {
+    table {
+        display: block;
+        overflow-x: auto;
+    }
+}

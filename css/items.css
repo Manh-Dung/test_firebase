@@ -1,0 +1,29 @@
+/* Item list styles */
+.firestore-section {
+    margin-top: 1rem;
+}
+
+ul {
+    list-style-type: none;
+    margin-top: 1rem;
+}
+
+li {
+    background-color: #f9f9f9;
+    padding: 0.8rem;
+    margin-bottom: 0.5rem;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.delete-btn {
+    background-color: #DB4437;
+    color: white;
+    border: none;
+    padding: 0.4rem 0.6rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
